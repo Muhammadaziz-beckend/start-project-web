@@ -2,12 +2,15 @@ import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
 import "./static/css/style.css";
+import Main from "./pages/main/Main";
 
 const App = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<>hello</>} />
+        <Route path="/" element={
+          <Main />
+        } />
       </Routes>
     </Router>
   );
