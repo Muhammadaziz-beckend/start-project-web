@@ -3,6 +3,7 @@ import { NavLink, Outlet, useNavigate } from "react-router-dom";
 const NAV_ITEMS = [
   { to: "/", label: "Дашборд", end: true },
   { to: "/bosses", label: "Боссы" },
+  { to: "/fund", label: "Фонд офиса" },
   { to: "/expenses", label: "Расходы офиса" },
   { to: "/debts", label: "Долги" },
 ];

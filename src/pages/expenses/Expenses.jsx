@@ -4,8 +4,16 @@ import { isApiError, errorMessage, formatMoney, buildQuery } from "../../utils/a
 import Loader from "../../components/Loader/Loader.jsx";
 import Modal from "../../components/Modal/Modal.jsx";
 
-const emptyFilters = { paid_by: "", category: "", date_from: "", date_to: "" };
+// payer: "" - все, "fund" - только из фонда офиса, иначе id босса
+const emptyFilters = { payer: "", category: "", date_from: "", date_to: "" };
 const emptyForm = { title: "", description: "", category: "other", amount: "", date: "", paid_by: "" };
+
+const toApiFilters = (f) => {
+  const api = { category: f.category, date_from: f.date_from, date_to: f.date_to };
+  if (f.payer === "fund") api.from_fund = "true";
+  else if (f.payer) api.paid_by = f.payer;
+  return api;
+};
 
 const Expenses = () => {
   const [bosses, setBosses] = useState([]);
@@ -32,7 +40,7 @@ const Expenses = () => {
   const load = () => {
     setLoading(true);
     setError("");
-    listExpenses(buildQuery(appliedFilters)).then((res) => {
+    listExpenses(buildQuery(toApiFilters(appliedFilters))).then((res) => {
       setLoading(false);
       if (isApiError(res)) {
         setError(errorMessage(res, "Не удалось загрузить расходы"));
@@ -57,7 +65,7 @@ const Expenses = () => {
 
   const openCreate = () => {
     setEditingId(null);
-    setForm({ ...emptyForm, paid_by: bosses[0]?.id ?? "" });
+    setForm({ ...emptyForm, paid_by: "" });
     setFormError("");
     setModalOpen(true);
   };
@@ -70,7 +78,7 @@ const Expenses = () => {
       category: expense.category,
       amount: expense.amount,
       date: expense.date,
-      paid_by: expense.paid_by,
+      paid_by: expense.paid_by ?? "",
     });
     setFormError("");
     setModalOpen(true);
@@ -89,7 +97,7 @@ const Expenses = () => {
       category: form.category,
       amount: form.amount,
       date: form.date,
-      paid_by: form.paid_by,
+      paid_by: form.paid_by || null,
     };
 
     const res = editingId ? await updateExpense(editingId, payload) : await createExpense(payload);
@@ -125,6 +133,12 @@ const Expenses = () => {
         </button>
       </div>
 
+      <p className="page-hint">
+        Обычно расход оплачивается из фонда офиса — долгов между боссами не возникает. Если
+        выбрать конкретного босса, значит он оплатил лично (в обход фонда), и сумма разделится
+        между остальными боссами как долг перед ним.
+      </p>
+
       {bosses.length === 0 && !loading && (
         <div className="alert alert-warning">
           Сначала добавьте хотя бы одного босса на странице «Боссы» — без него не с кем делить расходы.
@@ -135,13 +149,14 @@ const Expenses = () => {
         <label className="field field--inline">
           <span>Кто оплатил</span>
           <select
-            value={filters.paid_by}
-            onChange={(e) => setFilters({ ...filters, paid_by: e.target.value })}
+            value={filters.payer}
+            onChange={(e) => setFilters({ ...filters, payer: e.target.value })}
           >
-            <option value="">Все боссы</option>
+            <option value="">Все источники</option>
+            <option value="fund">Фонд офиса</option>
             {bosses.map((b) => (
               <option key={b.id} value={b.id}>
-                {b.name}
+                {b.name} (лично)
               </option>
             ))}
           </select>
@@ -319,11 +334,11 @@ const Expenses = () => {
                 <select
                   value={form.paid_by}
                   onChange={(e) => setForm({ ...form, paid_by: e.target.value })}
-                  required
                 >
+                  <option value="">Фонд офиса</option>
                   {bosses.map((b) => (
                     <option key={b.id} value={b.id}>
-                      {b.name}
+                      {b.name} (лично, в обход фонда)
                     </option>
                   ))}
                 </select>

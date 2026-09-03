@@ -82,8 +82,31 @@ const Dashboard = () => {
       {!loading && report && (
         <>
           <div className="stat-row">
+            <div className={"stat-card" + (Number(report.fund_balance) < 0 ? " stat-card--warning" : "")}>
+              <span className="stat-card__label">Баланс фонда офиса (сейчас)</span>
+              <span
+                className={"stat-card__value " + (Number(report.fund_balance) < 0 ? "text-negative" : "text-positive")}
+              >
+                {formatMoney(report.fund_balance)} сом
+              </span>
+            </div>
             <div className="stat-card">
-              <span className="stat-card__label">Расходы офиса за период</span>
+              <span className="stat-card__label">Взносы в фонд за период</span>
+              <span className="stat-card__value">{formatMoney(report.total_contributions)} сом</span>
+            </div>
+            <div className="stat-card">
+              <span className="stat-card__label">Расходы из фонда за период</span>
+              <span className="stat-card__value">{formatMoney(report.total_expenses_from_fund)} сом</span>
+            </div>
+            <div className="stat-card">
+              <span className="stat-card__label">Оплачено лично боссами за период</span>
+              <span className="stat-card__value">{formatMoney(report.total_expenses_personal)} сом</span>
+            </div>
+          </div>
+
+          <div className="stat-row">
+            <div className="stat-card">
+              <span className="stat-card__label">Все расходы офиса за период</span>
               <span className="stat-card__value">{formatMoney(report.total_expenses)} сом</span>
             </div>
             <div className={"stat-card" + (sharesMismatch ? " stat-card--warning" : "")}>
@@ -109,7 +132,11 @@ const Dashboard = () => {
 
                   <dl className="kv-list">
                     <div className="kv-list__row">
-                      <dt>Отдал за период</dt>
+                      <dt>Вложил в фонд</dt>
+                      <dd>{formatMoney(item.total_contributed)} сом</dd>
+                    </div>
+                    <div className="kv-list__row">
+                      <dt>Оплатил лично</dt>
                       <dd>{formatMoney(item.total_paid)} сом</dd>
                     </div>
                     <div className="kv-list__row">

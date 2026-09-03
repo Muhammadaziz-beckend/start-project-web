@@ -22,6 +22,12 @@ export const createExpense = (data) => Post("/office-expenses/", data, token());
 export const updateExpense = (id, data) => Put(`/office-expenses/${id}/`, data, token());
 export const deleteExpense = (id) => Del(`/office-expenses/${id}/`, token());
 
+// --- Взносы в фонд офиса ---
+export const listContributions = (query = "") => Get(`/office-contributions/${query}`, token());
+export const createContribution = (data) => Post("/office-contributions/", data, token());
+export const updateContribution = (id, data) => Put(`/office-contributions/${id}/`, data, token());
+export const deleteContribution = (id) => Del(`/office-contributions/${id}/`, token());
+
 // --- Долги ---
 export const listDebts = (query = "") => Get(`/debts/${query}`, token());
 export const settleDebt = (id, data) => Post(`/debts/${id}/settle/`, data, token());
